@@ -1,4 +1,4 @@
 [submodule "api_ai_history"]
-	url = https://github.com/CamelCaseNotation/api-ai-agent-test
+	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/df_history.git
 	path = api_ai_history
 	branch = refs/heads/master

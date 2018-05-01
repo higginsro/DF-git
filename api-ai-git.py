@@ -7,8 +7,9 @@ import click
 from git import Repo
 
 API_AI_HEADERS = None
-BASE_URL = 'https://api.api.ai/v1/'
-DEV_KEY = None
+BASE_URL = 'https://api.dialogflow.com/v1/'
+DEV_KEY = '605918452fca446e8518703aa4750c0e'
+DEV_TOKEN_ENV_NAME = 'API_AI_DEV_TOKEN'
 DEV_TOKEN_ENV_NAME = 'API_AI_DEV_TOKEN'
 API_AI_HISTORY_DIR = 'api_ai_history'
 API_AI_REPO = '{}/{}'.format(os.getcwd(), API_AI_HISTORY_DIR)
@@ -24,16 +25,17 @@ def init(repo_url):
     Clones submodule (separate repo) to keep track of API.ai history separately. This is required before use.
     """
     # TODO(jhurt): Handle private repos by using user's Github credentials
-    try:
-        if requests.head(repo_url).status_code != 200:
-            print('Cannot reach this URL. Terminating.')
-            return
-    except Exception:
-        # Likely a malformed URL, but requests can throw any number of different URL related Exceptions, so catch all
-        print('Likely a malformed URL. Terminating.')
-        return
+    # try:
+    #     if requests.get(repo_url).status_code != 200:
+    #         print('Cannot reach this URL. Terminating.')
+    #         return
+    # except Exception:
+    #     # Likely a malformed URL, but requests can throw any number of different URL related Exceptions, so catch all
+    #     print('Likely a malformed URL. Terminating.')
+    #     return
     repo = Repo(os.getcwd())
-    repo.create_submodule(API_AI_HISTORY_DIR, '{}/{}'.format(os.getcwd(), API_AI_HISTORY_DIR), url=repo_url, branch='master')
+    os.system('git submodule add {} {}'.format(repo_url, API_AI_HISTORY_DIR))
+    # repo.create_submodule(API_AI_HISTORY_DIR, '{}/{}'.format(os.getcwd(), API_AI_HISTORY_DIR), url=repo_url, branch='master')
     print('Submodule added. You may now save/load your state from/to API.ai')
 
 @cli.command()
@@ -158,7 +160,7 @@ def environment_valid():
     global DEV_KEY
     global DEV_TOKEN_ENV_NAME
     DEV_TOKEN_ENV_NAME = 'API_AI_DEV_TOKEN'
-    DEV_KEY = os.getenv(DEV_TOKEN_ENV_NAME)
+    # DEV_KEY = os.getenv(DEV_TOKEN_ENV_NAME)
     if DEV_KEY is None:
         print("Please set environment variable {}".format(DEV_TOKEN_ENV_NAME))
         return False
