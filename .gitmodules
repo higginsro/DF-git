@@ -1,4 +1,6 @@
-[submodule "api_ai_history"]
+[submodule "df_history"]
 	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/df_history.git
-	path = api_ai_history
-	branch = refs/heads/master
+	path = df_history
+[submodule "cua"]
+	path = cua
+	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/acs/chatbot-utility-app.git

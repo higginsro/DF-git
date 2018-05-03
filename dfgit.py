@@ -34,8 +34,8 @@ def init(repo_url):
     #     return
     repo = Repo(os.getcwd())
     print('git submodule add {} {}'.format(repo_url, DF_HISTORY_DIR))
-    # os.system('git submodule add {} {}'.format(repo_url, DF_HISTORY_DIR))
-    repo.create_submodule(API_AI_HISTORY_DIR, '{}\\{}'.format(os.getcwd(), API_AI_HISTORY_DIR), url=repo_url, branch='master')
+    os.system('git submodule add {} {}'.format(repo_url, DF_HISTORY_DIR))
+    # repo.create_submodule(DF_HISTORY_DIR, '{}\\{}'.format(os.getcwd(), DF_HISTORY_DIR), url=repo_url, branch='master')
     print('Submodule added. You may now save/load your state from/to API.ai')
 
 @cli.command()
