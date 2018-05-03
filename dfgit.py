@@ -6,20 +6,19 @@ import requests
 import click
 from git import Repo
 
-API_AI_HEADERS = None
+DF_HEADERS = None
 BASE_URL = 'https://api.dialogflow.com/v1/'
 DEV_KEY = '605918452fca446e8518703aa4750c0e'
-DEV_TOKEN_ENV_NAME = 'API_AI_DEV_TOKEN'
-DEV_TOKEN_ENV_NAME = 'API_AI_DEV_TOKEN'
-API_AI_HISTORY_DIR = 'api_ai_history'
-API_AI_REPO = '{}/{}'.format(os.getcwd(), API_AI_HISTORY_DIR)
+DEV_TOKEN_ENV_NAME = 'DF_DEV_TOKEN'
+DF_HISTORY_DIR = 'df_history'
+DF_REPO = os.path.join(os.getcwd(), DF_HISTORY_DIR)
 
 @click.group()
 def cli():
     pass
 
-@cli.command()
-@click.argument('repo_url')
+# @cli.command()
+# @click.argument('repo_url')
 def init(repo_url):
     """
     Clones submodule (separate repo) to keep track of API.ai history separately. This is required before use.
@@ -34,8 +33,9 @@ def init(repo_url):
     #     print('Likely a malformed URL. Terminating.')
     #     return
     repo = Repo(os.getcwd())
-    os.system('git submodule add {} {}'.format(repo_url, API_AI_HISTORY_DIR))
-    # repo.create_submodule(API_AI_HISTORY_DIR, '{}/{}'.format(os.getcwd(), API_AI_HISTORY_DIR), url=repo_url, branch='master')
+    print('git submodule add {} {}'.format(repo_url, DF_HISTORY_DIR))
+    # os.system('git submodule add {} {}'.format(repo_url, DF_HISTORY_DIR))
+    repo.create_submodule(API_AI_HISTORY_DIR, '{}\\{}'.format(os.getcwd(), API_AI_HISTORY_DIR), url=repo_url, branch='master')
     print('Submodule added. You may now save/load your state from/to API.ai')
 
 @cli.command()
@@ -51,13 +51,13 @@ def save_state(push, commit):
     intents = get_resource_dict('intents')
     entities = get_resource_dict('entities')
     # 'wb' means write the files in binary mode
-    with open(API_AI_HISTORY_DIR + '/intents.pickle', 'wb') as f, open(API_AI_HISTORY_DIR + '/entities.pickle', 'wb') as f2:
+    with open(DF_HISTORY_DIR + '/intents.pickle', 'wb') as f, open(DF_HISTORY_DIR + '/entities.pickle', 'wb') as f2:
         pickle.dump(intents, f)
         pickle.dump(entities, f2)
-    repo = Repo(API_AI_REPO)
+    repo = Repo(DF_REPO)
     repo.index.add([
-        API_AI_REPO + '/intents.pickle',
-        API_AI_REPO + '/entities.pickle'
+        DF_REPO + '/intents.pickle',
+        DF_REPO + '/entities.pickle'
     ])
     if push:
         commit = True
@@ -74,7 +74,7 @@ def load_state(commit_hash):
     """
     if not environment_valid():
         return
-    repo = Repo(API_AI_REPO)
+    repo = Repo(DF_REPO)
     target_commit = None
     # Get the Commit object based on the hash user provided
     if commit_hash:
@@ -122,25 +122,25 @@ def sync_api_ai(old_intents, old_entities):
 
     # DELETE all current Intents
     for intent_id in cur_intents_ids:
-        requests.delete(BASE_URL+'intents/'+intent_id, headers=API_AI_HEADERS)
+        requests.delete(BASE_URL +'intents/' + intent_id, headers=DF_HEADERS)
 
     # DELETE all current Entities
     for entity_id in cur_entities_ids:
-        requests.delete(BASE_URL+'entities/'+entity_id, headers=API_AI_HEADERS)
+        requests.delete(BASE_URL +'entities/' + entity_id, headers=DF_HEADERS)
 
     # CREATE all old Intents (will have new IDs now but that's okay)
     for intent in old_intents.values():
         # Intent object can't have the 'id' attribute for a POST
         if intent.get('id') is not None:
             del intent['id']
-        requests.post(BASE_URL+'intents', headers=API_AI_HEADERS, json=intent)
+        requests.post(BASE_URL +'intents', headers=DF_HEADERS, json=intent)
 
     # CREATE all old Entities (will have new IDs now but that's okay)
     for entity in old_entities.values():
         # Entity object can't have the 'id' attribute for a POST
         if entity.get('id') is not None:
             del entity['id']
-        requests.post(BASE_URL+'entities', headers=API_AI_HEADERS, json=entity)
+        requests.post(BASE_URL +'entities', headers=DF_HEADERS, json=entity)
 
 def get_resource_dict(resource):
     """
@@ -148,14 +148,14 @@ def get_resource_dict(resource):
     :param resource: either 'intents' or 'entities' as of right now
     :return: dict in form { 'id' : resource_dict }
     """
-    resource_json = requests.get(BASE_URL+resource, headers=API_AI_HEADERS).json()
+    resource_json = requests.get(BASE_URL + resource, headers=DF_HEADERS).json()
     resources = {}
     for d in resource_json:
-        resources[d['id']] = requests.get(BASE_URL+resource+'/'+d['id'], headers=API_AI_HEADERS).json()
+        resources[d['id']] = requests.get(BASE_URL + resource +'/' + d['id'], headers=DF_HEADERS).json()
     return resources
 
 def environment_valid():
-    global API_AI_HEADERS
+    global DF_HEADERS
     global BASE_URL
     global DEV_KEY
     global DEV_TOKEN_ENV_NAME
@@ -164,11 +164,11 @@ def environment_valid():
     if DEV_KEY is None:
         print("Please set environment variable {}".format(DEV_TOKEN_ENV_NAME))
         return False
-    API_AI_HEADERS = {'Authorization' : 'Bearer {}'.format(DEV_KEY)}
+    DF_HEADERS = {'Authorization' : 'Bearer {}'.format(DEV_KEY)}
     repo = Repo(os.getcwd())
     found_submodule = False
     for module in repo.submodules:
-        if module.name == API_AI_HISTORY_DIR:
+        if module.name == DF_HISTORY_DIR:
             found_submodule = True
     if not found_submodule:
         print("Re-run tool with 'init <REPO_URL>' command where <REPO_URL> is a "
@@ -179,4 +179,4 @@ def environment_valid():
 
 
 if __name__ == '__main__':
-    cli()
+    pass
