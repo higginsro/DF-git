@@ -3,8 +3,11 @@
 import os
 import pickle
 import requests
+import json
 import click
-from git import Repo
+# from git import Repo
+import json, codecs
+from dulwich.repo import Repo
 
 DF_HEADERS = None
 BASE_URL = 'https://api.dialogflow.com/v1/'
@@ -36,11 +39,11 @@ def init(repo_url):
     print('git submodule add {} {}'.format(repo_url, DF_HISTORY_DIR))
     os.system('git submodule add {} {}'.format(repo_url, DF_HISTORY_DIR))
     # repo.create_submodule(DF_HISTORY_DIR, '{}\\{}'.format(os.getcwd(), DF_HISTORY_DIR), url=repo_url, branch='master')
-    print('Submodule added. You may now save/load your state from/to API.ai')
+    print('Submodule added. You may now save/load your state from/to Dialogflow')
 
-@cli.command()
-@click.option('--commit', is_flag=True, help='Automatically commit the saved state.')
-@click.option('--push', is_flag=True, help='Automatically push (and commit) the saved state')
+# @cli.command()
+# @click.option('--commit', is_flag=True, help='Automatically commit the saved state.')
+# @click.option('--push', is_flag=True, help='Automatically push (and commit) the saved state')
 def save_state(push, commit):
     """
     Saves API.ai state (Intents/Entities) as serialized data to be loaded later
@@ -50,21 +53,27 @@ def save_state(push, commit):
     print('Saving entire state!')
     intents = get_resource_dict('intents')
     entities = get_resource_dict('entities')
+    intents_path = os.path.join(DF_HISTORY_DIR, 'intents.json')
+    entities_path = os.path.join(DF_HISTORY_DIR, 'entities.json')
     # 'wb' means write the files in binary mode
-    with open(DF_HISTORY_DIR + '/intents.pickle', 'wb') as f, open(DF_HISTORY_DIR + '/entities.pickle', 'wb') as f2:
-        pickle.dump(intents, f)
-        pickle.dump(entities, f2)
-    repo = Repo(DF_REPO)
-    repo.index.add([
-        DF_REPO + '/intents.pickle',
-        DF_REPO + '/entities.pickle'
-    ])
+    with open(intents_path, 'w', encoding='utf-8') as f, open(entities_path, 'w', encoding='utf-8') as f2:
+        json.dump(intents, f, ensure_ascii=False, indent=4, sort_keys=True)
+        json.dump(entities, f2, ensure_ascii=False, indent=4, sort_keys=True)
+    # repo = Repo(DF_REPO)
+    # repo.stage([DF_HISTORY_DIR + '/intents.json',
+    #     DF_HISTORY_DIR + '/entities.json'
+    # ])
+    os.chdir(DF_HISTORY_DIR)
+    os.system('git add {} {}'.format('intents.json', 'entities.json'))
+    print("in {}".format(os.getcwd()))
+    message = '"Intents: {}, # Entities: {}"'.format(len(intents), len(entities))
     if push:
         commit = True
     if commit:
-        repo.index.commit('# Intents: {}, # Entities: {}'.format(len(intents), len(entities)))
+        # repo.do_commit(b'# Intents: {}, # Entities: {}'.format(len(intents), len(entities)))
+        os.system('git commit -m {}'.format(message))
     if push:
-        repo.index.push()
+        os.system('git push')
 
 @cli.command()
 @click.option('--commit-hash', default=None, help="A commit hash to make the state of API.ai match.")
@@ -165,18 +174,22 @@ def environment_valid():
         print("Please set environment variable {}".format(DEV_TOKEN_ENV_NAME))
         return False
     DF_HEADERS = {'Authorization' : 'Bearer {}'.format(DEV_KEY)}
-    repo = Repo(os.getcwd())
-    found_submodule = False
-    for module in repo.submodules:
-        if module.name == DF_HISTORY_DIR:
-            found_submodule = True
-    if not found_submodule:
+    # repo = Repo(os.getcwd())
+    # found_submodule = False
+    # for module in repo.submodules:
+    #     if module.name == DF_HISTORY_DIR:
+    #         found_submodule = True
+    if DF_HISTORY_DIR not in find_submodules():
         print("Re-run tool with 'init <REPO_URL>' command where <REPO_URL> is a "
               "public Github repo where you would like to save your API.ai history.")
         return False
     return True
 
-
+def find_submodules():
+    ff = os.popen("git config --file .gitmodules --get-regexp path ").read()
+    assert ff, "no submodules found"
+    submodules = [line.split()[-1] for line in ff.strip().split('\n')]
+    return submodules
 
 if __name__ == '__main__':
     pass

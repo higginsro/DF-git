@@ -1,4 +1,4 @@
-# import dfgit
+import dfgit
 # import unittest
 #
 # class GitInit(unittest.TestCase):
@@ -15,7 +15,13 @@ from contextlib import redirect_stdout
 # repo_url = "https://rhiggins@rndwww.nce.amadeus.net/git/scm/~mvrabie/vita.git"
 # init(repo_url)
 
-ff = os.popen("git config --file .gitmodules --get-regexp path ").read()
-submodules = ff.split('\n')
-for sub in submodules:
-    print(sub.split())
+
+# ff = os.popen("git config --file .gitmodules --get-regexp path ").read()
+# submodules = ff.split('\n')
+# for sub in submodules:
+#     print(sub.split())
+
+print(dfgit.find_submodules())
+dfgit.environment_valid()
+
+dfgit.save_state(True, True)
