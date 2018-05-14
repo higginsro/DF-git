@@ -1,5 +1,7 @@
 import dfgit
-# import unittest
+import click
+from click.testing import CliRunner
+import unittest
 #
 # class GitInit(unittest.TestCase):
 #     """test repo init functionality"""
@@ -21,7 +23,31 @@ from contextlib import redirect_stdout
 # for sub in submodules:
 #     print(sub.split())
 
-print(dfgit.find_submodules())
-dfgit.environment_valid()
+# def test_init():
+#     runner = CliRunner()
+#     result = runner.invoke(dfgit.init, ["git@github.com:higginsro/gtest.git","gtest"])
+#     assert result==None, "nope"
+#     print(result.output)
+# cli()
 
-dfgit.save_state(True, True)
+print(dfgit.find_submodules())
+# already existing repo
+# dfgit.init("https://github.com/higginsro/gtest.git","sv_scratch")
+# print('saving current state of sv_scratch')
+# dfgit.save_state(True,True, 'sv_scratch')
+# WORKS as of 14/05/2018 v1 api still
+
+# print('trying load_state for sv_scratch')
+# dfgit.load_state('sv_scratch')
+# works as of 14/05/2018
+# new agent
+#dev_key = 648e5dadfa00426f9ecdcf02d024d991
+dfgit.init("https://github.com/higginsro/sv_git_test.git",'sv_git_test')
+
+
+# dfgit.environment_valid()
+
+# dfgit.save_state(True, True)
+
+# dfgit.load_state()
+# test_init()

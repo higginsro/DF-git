@@ -4,3 +4,9 @@
 [submodule "cua"]
 	path = cua
 	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/acs/chatbot-utility-app.git
+[submodule "sv_scratch"]
+	path = sv_scratch
+	url = https://github.com/higginsro/gtest.git
+[submodule "sv_git_test"]
+	path = sv_git_test
+	url = https://github.com/higginsro/sv_git_test.git
