@@ -10,27 +10,37 @@ This is a CLI tool to version control intents and entities in API.ai born out of
 ```
 > pip install -r requirements.txt
 
-Go into the API.ai dashboard, click the settings for your agent, and export the developer token as an environment variable
+Go into the dialogflow.ai dashboard, click the settings for your agent, and export the developer token as an environment variable
 > export API_AI_DEV_TOKEN="<paste_token_here>"
 
-Need to clone a submodule in current repo. The submodule is just another repo whose job is to only track API.ai changes
-> api-ai-git.py init <URL_to_repo>
+Create a github/bitbucket repo for each agent you wish to have version control for.
+Changes will be tracked in these repos.
+Clone each of these as a submodule in current repo using:
+> dfgit.py init <URL_to_repo> <agent_name>
+
+You will be prompted for the agent's developer token only once
 
 Save state of all Intents & Entities and commit
-> api-ai-git.py save_state --commit
+> dfgit.py save_state --commit <agent_name>
 
 You can commit and push by giving just the --push flag
-> api-ai-git.py save_state --push
+> dfgit.py save_state --push <agent_name>
 
 Load a saved state from a specific commit hash
-> api-ai-git.py load_state --commit-hash 11edc81f6d2a1e9ede198b75a90d021124c5207b
+> dfgit.py load_state --commit-hash 11edc81f6d2a1e9ede198b75a90d021124c5207b <agent_name>
 
 Or you can pick from a list of up to the last 10 commits to load a state
-> api-ai-git.py load_state
+> api-ai-git.py load_state <agent_name>
 (0)  2ee277719bff7d92ae4e27efd5ca2cb069e33fe3  # Intents: 3, # Entities: 1
 (1)  fedb991cd6667e73c662ad74b03773955e189f9b  # Intents: 3, # Entities: 1
 (2)  11edc81f6d2a1e9ede198b75a90d021124c5207b  test
 (3)  520006c8aae7c632c7805c76f6668b27804813f9  Initial commit
 Press number corresponding to which commit you'd like to load the state from:
-```
 
+
+Overwrite one bot with another .e.g. production bot with dev bot
+> dfgit overwrite <prod_bot> <dev_bot>
+
+This will save and push the current state of both bots
+and overwrite the <prod_bot> with the most recent version of the <dev_bot>
+```

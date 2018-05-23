@@ -10,3 +10,6 @@
 [submodule "sv_git_test"]
 	path = sv_git_test
 	url = https://github.com/higginsro/sv_git_test.git
+[submodule "sv_git_test2"]
+	path = sv_git_test2
+	url = https://github.com/higginsro/sv_git_test.git

@@ -8,8 +8,7 @@ from git import Repo
 import json
 import configparser
 from time import gmtime, strftime
-
-# from dulwich.repo import Repo
+import shutil
 DF_HEADERS = None
 BASE_URL = 'https://api.dialogflow.com/v1/'
 # DEV_KEY = '605918452fca446e8518703aa4750c0e'
@@ -25,9 +24,9 @@ DEV_KEY = None
 def cli():
     pass
 
-@cli.command()
-@click.argument('repo_name')
-@click.argument('dev_token')
+# @cli.command()
+# @click.argument('repo_name')
+# @click.argument('dev_token')
 def create_new(repo_name, dev_token):
     """
     Creates new git repository for storing an agent's entities and intents.
@@ -35,9 +34,9 @@ def create_new(repo_name, dev_token):
     :return: 
     """
     pass
-# @cli.command()
-# @click.argument('repo_url')
-# @click.argument('agent_name') #formerly DF_HISTORY_DIR
+@cli.command()
+@click.argument('repo_url')
+@click.argument('agent_name') #formerly DF_HISTORY_DIR
 def init(repo_url, agent_name):
     """
     Clones submodule (separate repo) to keep track of API.ai history separately. This is required before use.
@@ -66,7 +65,7 @@ def init(repo_url, agent_name):
                            'dev_token':input("{}'s dev token: ".format(agent_name)),
                            'git_repo':repo_url
                            }
-        with open('agents.ini','a') as configfile:
+        with open('agents.ini','w') as configfile:
             config.write(configfile)
     # repo.create_submodule(DF_HISTORY_DIR, '{}\\{}'.format(os.getcwd(), DF_HISTORY_DIR), url=repo_url, branch='master')
     print('Submodule added. You may now save/load your state from/to Dialogflow')
@@ -74,8 +73,9 @@ def init(repo_url, agent_name):
 # @cli.command()
 # @click.option('--commit', is_flag=True, help='Automatically commit the saved state.')
 # @click.option('--push', is_flag=True, help='Automatically push (and commit) the saved state')
-@click.argument('agent_name')
-def save_state(push, commit,agent_name):
+# @click.argument('agent_name')
+# @click.option('--delta')
+def save_state_internal(push, commit, agent_name, delta=None):
     """
     Saves API.ai state (Intents/Entities) as serialized data to be loaded later
     """
@@ -106,7 +106,8 @@ def save_state(push, commit,agent_name):
     os.chdir(AGENT_DIR)
     os.system('git add {} {}'.format('intents.json', 'entities.json'))
     print("in {}".format(os.getcwd()))
-    delta = input("Commit message: ")
+    if not delta:
+        delta = input("Commit message: ")
     message = '"{} {}"'.format(strftime("%d-%m-%Y %H:%M", gmtime()), delta)
     if push:
         commit = True
@@ -115,11 +116,20 @@ def save_state(push, commit,agent_name):
         os.system('git commit -m {}'.format(message))
     if push:
         os.system('git push')
+    os.chdir('..')
+
+@cli.command()
+@click.option('--commit', is_flag=True, help='Automatically commit the saved state.')
+@click.option('--push', is_flag=True, help='Automatically push (and commit) the saved state')
+@click.argument('agent_name')
+@click.option('--delta')
+def save_state(push, commit, agent_name, delta):
+    return save_state_internal(push, commit, agent_name, delta)
 
 # @cli.command()
 # @click.option('--commit-hash', default=None, help="A commit hash to make the state of API.ai match.")
 # @click.argument('agent_name')
-def load_state(agent_name, commit_hash=None):
+def load_state_internal(agent_name, commit_hash=None):
     """
     Restores state of all Intents/Entities from commit hash to API.ai
     """
@@ -162,6 +172,47 @@ def load_state(agent_name, commit_hash=None):
 
     sync_api_ai(intents, entities)
     print('Refresh the API.ai dashboard to see changes')
+
+@cli.command()
+@click.option('--commit-hash', default=None, help="A commit hash to make the state of API.ai match.")
+@click.argument('agent_name')
+def load_state(agent_name, commit_hash=None):
+    return load_state_internal(agent_name, commit_hash)
+
+
+@cli.command()
+@click.argument('master_agent')
+@click.argument('dev_agent')
+def overwrite(master_agent, dev_agent):
+    '''
+    saves current state of both agents,
+    and overwrites master_agent with current dev_agent by copying locally..
+    and
+    :param master_agent:agent to be overwritten
+    :param dev_agent: agent that is overwriting
+    :return:None
+    '''
+    # saving current versions of both
+    print("saving prior to overwrite")
+    saving_message = "Save prior to {} overwriting {}".format(dev_agent, master_agent)
+    save_state_internal(push=True, commit=True, agent_name=master_agent, delta=saving_message)
+    save_state_internal(True, True, agent_name=dev_agent, delta=saving_message)
+
+    # local overwrite
+    shutil.copy(dev_agent+'/intents.json', master_agent+'/intents.json')
+    shutil.copy(dev_agent+'/entities.json', master_agent+'/entities.json')
+    # push local master agent
+    os.chdir(master_agent)
+    os.system('git add {} {}'.format('intents.json', 'entities.json'))
+    delta = 'overwriting this agent with {}'.format(dev_agent)
+    message = '"{} {}"'.format(strftime("%d-%m-%Y %H:%M", gmtime()), delta)
+    os.system('git commit -m {}'.format(message))
+    os.system('git push')
+
+    os.chdir('..')
+
+    # pushing changes to DF for master_agent
+    load_state_internal(master_agent, commit_hash=get_latest_commit_hash(master_agent))
 
 def sync_api_ai(old_intents, old_entities):
     cur_intents = get_resource_dict('intents')
@@ -218,8 +269,8 @@ def environment_valid(agent_name):
     config = configparser.ConfigParser()
     config.read('agents.ini')
     if agent_name not in config:
-        print("{} not found in agents.ini config file. "
-              "Before save_state try running: dfgit.py init <repo_url> <agent_name>")
+        print("{} not found in agents.ini config file. ".format(agent_name))
+        print("Before save_state try running: dfgit.py init <repo_url> <agent_name>")
         return False
     else:
         AGENT_DIR = config[agent_name]['agent_name']
@@ -241,7 +292,18 @@ def find_submodules():
     submodules = [line.split()[-1] for line in ff.strip().split('\n')]
     return submodules
 
+def get_latest_commit_hash(target_dir=None):
+    if target_dir:
+        os.chdir(target_dir)
+    ff = os.popen('git log --date=format:"%d-%m-%Y %H:%M:%S" --pretty=format:"%H, %cn, %ad, %s"').read()
+    assert ff, "no commits found"
+    commits = [line.split(', ') for line in ff.strip().split('\n')]
+    latest_commit_hash = commits[0][0]
+    latest_commit_message = commits[0][-1]
+    print("retrieving commit {} {}".format(latest_commit_hash,latest_commit_message))
+    if target_dir:
+        os.chdir('..')
+    return latest_commit_hash
 
 if __name__ == '__main__':
-    pass
-    # cli()
+    cli()
