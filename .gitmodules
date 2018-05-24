@@ -17,3 +17,6 @@
 [submodule "swedish_dev"]
 	path = swedish_dev
 	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/swedish_dev.git
+[submodule "flygresor_en"]
+	path = flygresor_en
+	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/flygresor_en.git
