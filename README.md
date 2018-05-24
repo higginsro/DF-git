@@ -1,26 +1,42 @@
-# api-ai-git
+# dialogflow-ai-git
 ### Reason for creation:
-This is a CLI tool to version control intents and entities in dialogflow.ai born out of a frustration of having them constantly mangled by other team members without a way to rollback to a working version.
+This is a CLI tool to version control intents and entities in dialogflow.ai borne out of a frustration of having them constantly mangled by other team members without a way to rollback to a working version.
 
 ### List of supported actions:
 * Save current state of all Intents and Entities with the option to automatically commit and/or push the changes
 * Load the state of Intents and Entities from a previous commit to dialogflow.ai
 * Overwrite the Intents and Entities of one agent with another's.
 
-### Instructions for setup and use:
+### Instructions for setup:
 ```
+Using Python 3.5.5
 > pip install -r requirements.txt
+preferably inside a virtualenv
+if using conda:
+    > conda create --name df-git python=3.5.5 --file=./requirements.txt
+    activate env with:
+    > (source) activate df-git   # depending on linux/windows
 
-Go into the dialogflow.ai dashboard, click the settings for your agent, and export the developer token as an environment variable
-> export API_AI_DEV_TOKEN="<paste_token_here>"
 
-Create a github/bitbucket repo for each agent you wish to have version control for.
+Create a nonempty github/bitbucket repo for each agent you wish to have version control for.
 Changes will be tracked in these repos.
+for example create first an empty repo on bitbucket and then locally:
+mkdir some_agent
+touch README.md
+git init
+git add *
+git remote add origin <repo_url>
+git push -u origin master
+
+
 Clone each of these as a submodule in current repo using:
 > dfgit.py init <URL_to_repo> <agent_name>
 
 You will be prompted for the agent's developer token only once
-
+This can be found in the settings section of your agent dashboard on dialogflow
+```
+### Usage:
+```
 Save state of all Intents & Entities and commit
 > dfgit.py save_state --commit <agent_name>
 
@@ -31,7 +47,7 @@ Load a saved state from a specific commit hash
 > dfgit.py load_state --commit-hash 11edc81f6d2a1e9ede198b75a90d021124c5207b <agent_name>
 
 Or you can pick from a list of up to the last 10 commits to load a state
-> api-ai-git.py load_state <agent_name>
+> dfgit.py load_state <agent_name>
 (0)  2ee277719bff7d92ae4e27efd5ca2cb069e33fe3  # Intents: 3, # Entities: 1
 (1)  fedb991cd6667e73c662ad74b03773955e189f9b  # Intents: 3, # Entities: 1
 (2)  11edc81f6d2a1e9ede198b75a90d021124c5207b  test
