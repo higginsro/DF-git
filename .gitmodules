@@ -13,6 +13,4 @@
 [submodule "sv_git_test2"]
 	path = sv_git_test2
 	url = https://github.com/higginsro/sv_git_test.git
-[submodule "swedish_dev"]
-	path = swedish_dev
-	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/swedish_dev.git
+
