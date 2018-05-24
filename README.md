@@ -1,10 +1,11 @@
 # api-ai-git
 ### Reason for creation:
-This is a CLI tool to version control intents and entities in API.ai born out of a frustration of having them constantly mangled by other team members without a way to rollback to a working version.
+This is a CLI tool to version control intents and entities in dialogflow.ai born out of a frustration of having them constantly mangled by other team members without a way to rollback to a working version.
 
 ### List of supported actions:
 * Save current state of all Intents and Entities with the option to automatically commit and/or push the changes
-* Load the state of Intents and Entities from a previous commit to API.ai
+* Load the state of Intents and Entities from a previous commit to dialogflow.ai
+* Overwrite the Intents and Entities of one agent with another's.
 
 ### Instructions for setup and use:
 ```
