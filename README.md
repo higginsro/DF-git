@@ -9,6 +9,8 @@ This is a CLI tool to version control intents and entities in dialogflow.ai born
 
 ### Instructions for setup:
 ```
+Clone this repo using:
+> git clone --recursive https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/dialogflow-git.git
 Using Python 3.5.5
 > pip install -r requirements.txt
 preferably inside a virtualenv
