@@ -39,7 +39,7 @@ def create_new(repo_name, dev_token):
 @click.argument('agent_name') #formerly DF_HISTORY_DIR
 def init(repo_url, agent_name):
     """
-    Clones submodule (separate repo) to keep track of API.ai history separately. This is required before use.
+    Clones submodule (separate repo) to keep track of dialogflow.com history separately. This is required before use.
     """
     # TODO(jhurt): Handle private repos by using user's Github credentials
     # try:
@@ -70,24 +70,42 @@ def init(repo_url, agent_name):
     # repo.create_submodule(DF_HISTORY_DIR, '{}\\{}'.format(os.getcwd(), DF_HISTORY_DIR), url=repo_url, branch='master')
     print('Submodule added. You may now save/load your state from/to Dialogflow')
 
-# @cli.command()
-# @click.option('--commit', is_flag=True, help='Automatically commit the saved state.')
-# @click.option('--push', is_flag=True, help='Automatically push (and commit) the saved state')
-# @click.argument('agent_name')
-# @click.option('--delta')
+@cli.command()
+@click.argument('agent_name')
+def rm_agent(agent_name):
+    """
+    !DANGER! deletes submodule of an agent from this repo.
+    :return:
+    """
+    conf = configparser.ConfigParser()
+    conf.read("agents.ini")
+    if agent_name in conf:
+        del conf[agent_name]
+        with open("agents.ini", "w") as f:
+            conf.write(f)
+        print("removing {} from agents.ini".format(agent_name))
+    if agent_name in find_submodules():
+        os.system('git rm {}'.format(agent_name))
+        path = os.path.join(".git", "modules", agent_name)
+        shutil.rmtree(path)
+        print("deleted "+agent_name)
+
+
+@cli.command()
+@click.option('--commit', is_flag=True, help='Automatically commit the saved state.')
+@click.option('--push', is_flag=True, help='Automatically push (and commit) the saved state')
+@click.option('--delta', default=None, type=str, help='commit message')
+@click.argument('agent_name')
+def save_state(push, commit, agent_name, delta):
+    """
+    Saves dialogflow.com agent's state (Intents/Entities) as json files
+    """
+    return save_state_internal(push, commit, agent_name, delta=delta)
+
 def save_state_internal(push, commit, agent_name, delta=None):
     """
-    Saves API.ai state (Intents/Entities) as serialized data to be loaded later
+    Saves dialogflow.com agent's state (Intents/Entities) as json files
     """
-    # config = configparser.ConfigParser()
-    # config.read('agents.ini')
-    # if agent_name not in config:
-    #     print("{} not found in agents.ini config file. "
-    #           "Before save_state try running: dfgit.py init <repo_url> <agent_name>")
-    #     return
-    # else:
-    #     agent_name = config[agent_name]['agent_name']
-    #     dev_token = confih[agent_name]['dev_token']
     if not environment_valid(agent_name):
         return
     print('Saving entire state!')
@@ -95,43 +113,26 @@ def save_state_internal(push, commit, agent_name, delta=None):
     entities = get_resource_dict('entities')
     intents_path = os.path.join(agent_name, 'intents.json')
     entities_path = os.path.join(agent_name, 'entities.json')
-    # 'wb' means write the files in binary mode
     with open(intents_path, 'w', encoding='utf-8') as f, open(entities_path, 'w', encoding='utf-8') as f2:
         json.dump(intents, f, ensure_ascii=False, indent=4, sort_keys=True)
         json.dump(entities, f2, ensure_ascii=False, indent=4, sort_keys=True)
-    # repo = Repo(DF_REPO)
-    # repo.stage([DF_HISTORY_DIR + '/intents.json',
-    #     DF_HISTORY_DIR + '/entities.json'
-    # ])
     os.chdir(AGENT_DIR)
     os.system('git add {} {}'.format('intents.json', 'entities.json'))
     print("in {}".format(os.getcwd()))
-    if not delta:
+    if not delta and push:
         delta = input("Commit message: ")
     message = '"{} {}"'.format(strftime("%d-%m-%Y %H:%M", gmtime()), delta)
-    if push:
+    if push or delta:
         commit = True
     if commit:
-        # repo.do_commit(b'# Intents: {}, # Entities: {}'.format(len(intents), len(entities)))
         os.system('git commit -m {}'.format(message))
     if push:
         os.system('git push')
     os.chdir('..')
 
-@cli.command()
-@click.option('--commit', is_flag=True, help='Automatically commit the saved state.')
-@click.option('--push', is_flag=True, help='Automatically push (and commit) the saved state')
-@click.argument('agent_name')
-@click.option('--delta')
-def save_state(push, commit, agent_name, delta):
-    return save_state_internal(push, commit, agent_name, delta)
-
-# @cli.command()
-# @click.option('--commit-hash', default=None, help="A commit hash to make the state of API.ai match.")
-# @click.argument('agent_name')
 def load_state_internal(agent_name, commit_hash=None):
     """
-    Restores state of all Intents/Entities from commit hash to API.ai
+    Restores state of all Intents/Entities from a commit hash to dialogflow.com
     """
     if not environment_valid(agent_name):
         print('env not valid ..')
@@ -177,6 +178,9 @@ def load_state_internal(agent_name, commit_hash=None):
 @click.option('--commit-hash', default=None, help="A commit hash to make the state of API.ai match.")
 @click.argument('agent_name')
 def load_state(agent_name, commit_hash=None):
+    """
+    Restores state of all Intents/Entities from a commit hash to dialogflow.com
+    """
     return load_state_internal(agent_name, commit_hash)
 
 
@@ -194,14 +198,14 @@ def overwrite(master_agent, dev_agent):
     '''
     # saving current versions of both
     print("saving prior to overwrite")
-    saving_message = "Save prior to {} overwriting {}".format(dev_agent, master_agent)
+    saving_message = "Save prior to overwriting {} with {}".format(dev_agent, master_agent)
     save_state_internal(push=True, commit=True, agent_name=master_agent, delta=saving_message)
     save_state_internal(True, True, agent_name=dev_agent, delta=saving_message)
 
     # local overwrite
     shutil.copy(dev_agent+'/intents.json', master_agent+'/intents.json')
     shutil.copy(dev_agent+'/entities.json', master_agent+'/entities.json')
-    # push local master agent
+    # push local master_agent
     os.chdir(master_agent)
     os.system('git add {} {}'.format('intents.json', 'entities.json'))
     delta = 'overwriting this agent with {}'.format(dev_agent)
@@ -213,6 +217,18 @@ def overwrite(master_agent, dev_agent):
 
     # pushing changes to DF for master_agent
     load_state_internal(master_agent, commit_hash=get_latest_commit_hash(master_agent))
+
+@cli.command()
+def list_agents():
+    '''
+    lists DF agents currently tracked by this repo in submodules
+    '''
+    conf = configparser.ConfigParser()
+    conf.read('agents.ini')
+    for agent_name in conf:
+        if agent_name != 'DEFAULT':
+            print(agent_name)
+
 
 def sync_api_ai(old_intents, old_entities):
     cur_intents = get_resource_dict('intents')
@@ -285,11 +301,12 @@ def environment_valid(agent_name):
               "public Github/bitbucket repo where you would like to save your dialogflow history.")
         return False
     return True
-
+# @cli.command()
 def find_submodules():
     ff = os.popen("git config --file .gitmodules --get-regexp path ").read()
     assert ff, "no submodules found"
     submodules = [line.split()[-1] for line in ff.strip().split('\n')]
+    # print(submodules)
     return submodules
 
 def get_latest_commit_hash(target_dir=None):

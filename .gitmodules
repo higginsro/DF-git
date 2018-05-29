@@ -1,9 +1,6 @@
 [submodule "df_history"]
 	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/df_history.git
 	path = df_history
-[submodule "cua"]
-	path = cua
-	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/acs/chatbot-utility-app.git
 [submodule "sv_scratch"]
 	path = sv_scratch
 	url = https://github.com/higginsro/gtest.git
