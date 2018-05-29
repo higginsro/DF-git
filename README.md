@@ -3,6 +3,7 @@
 This is a CLI tool to version control intents and entities in dialogflow.ai borne out of a frustration of having them constantly mangled by other team members without a way to rollback to a working version.
 
 ### List of supported actions:
+* List agents being tracked in repos currently
 * Save current state of all Intents and Entities with the option to automatically commit and/or push the changes
 * Load the state of Intents and Entities from a previous commit to dialogflow.ai
 * Overwrite the Intents and Entities of one agent with another's.
@@ -12,15 +13,20 @@ This is a CLI tool to version control intents and entities in dialogflow.ai born
 Clone this repo using:
 > git clone --recursive https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/dialogflow-git.git
 Using Python 3.5.5
+preferably in a virtual env use:
 > pip install -r requirements.txt
-preferably inside a virtualenv
-if using conda:
-    > conda create --name df-git python=3.5.5 --file=./requirements.txt
+
+if using conda you can create an env using the .yml file in this repo:
+    > conda create -f df-git.yml
     activate env with:
     > (source) activate df-git   # depending on linux/windows
 
 
-Create a nonempty github/bitbucket repo for each agent you wish to have version control for.
+Check the list of agents currently being tracked using:
+> dfgit.py list_agents
+
+Create a nonempty github/bitbucket repo for each agent you wish to have version control for
+that isn't currently being tracked.
 Changes will be tracked in these repos.
 for example create first an empty repo on bitbucket and then locally:
 mkdir some_agent
