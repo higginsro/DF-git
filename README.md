@@ -7,7 +7,7 @@ This is a CLI tool to version control intents and entities in dialogflow.ai born
 * Save current state of all Intents and Entities with the option to automatically commit and/or push the changes
 * Load the state of Intents and Entities from a previous commit to dialogflow.ai
 * Overwrite the Intents and Entities of one agent with another's.
-
+* Remove an agent's repo as a submodule from this one
 ### Instructions for setup:
 ```
 Clone this repo using:
@@ -45,11 +45,19 @@ This can be found in the settings section of your agent dashboard on dialogflow
 ```
 ### Usage:
 ```
+For more details about how to run a command use --help:
+> dfgit.py init --help
+
 Save state of all Intents & Entities and commit
 > dfgit.py save_state --commit <agent_name>
 
 You can commit and push by giving just the --push flag
 > dfgit.py save_state --push <agent_name>
+
+you will be prompted for a commit message in both cases
+
+Alternatively use --delta option to supply a commit message:
+> dfgit.py save_state --push --delta "4th commit" <agent_name>
 
 Load a saved state from a specific commit hash
 > dfgit.py load_state --commit-hash 11edc81f6d2a1e9ede198b75a90d021124c5207b <agent_name>
@@ -68,4 +76,8 @@ Overwrite one bot with another .e.g. production bot with dev bot
 
 This will save and push the current state of both bots
 and overwrite the <prod_bot> with the most recent version of the <dev_bot>
+
+rm_agent removes a submodule from your local repo. Use with caution:
+dfgit.py rm_agent <agent_name>
+
 ```
