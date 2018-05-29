@@ -163,7 +163,7 @@ def load_state_internal(agent_name, commit_hash=None):
 
     print('Loading entire state! Please be patient.')
     intents, entities = None, None
-    # TODO(jhurt): make this only iterate through the API.ai specific pickle files.
+    # TODO(jhurt): make this only iterate through the dialogflow.com specific pickle files.
     # Maybe put them in their own directory and limit the "tree" path to blobs in that path?
     for b in target_commit.tree.blobs:
         if b.name == "intents.json":
@@ -172,10 +172,10 @@ def load_state_internal(agent_name, commit_hash=None):
             entities = json.loads(b.data_stream.read().decode('utf-8'))
 
     sync_api_ai(intents, entities)
-    print('Refresh the API.ai dashboard to see changes')
+    print('Refresh the dialogflow.com dashboard to see changes')
 
 @cli.command()
-@click.option('--commit-hash', default=None, help="A commit hash to make the state of API.ai match.")
+@click.option('--commit-hash', default=None, help="A commit hash to make the state of dialogflow.com match.")
 @click.argument('agent_name')
 def load_state(agent_name, commit_hash=None):
     """
