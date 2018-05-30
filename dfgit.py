@@ -173,6 +173,7 @@ def load_state_internal(agent_name, commit_hash=None):
 
     sync_api_ai(intents, entities)
     print('Refresh the dialogflow.com dashboard to see changes')
+    # TODO update repo to reflect restore
 
 @cli.command()
 @click.option('--commit-hash', default=None, help="A commit hash to make the state of dialogflow.com match.")
