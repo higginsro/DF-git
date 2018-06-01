@@ -35,17 +35,18 @@ preferably in a virtual env use:
 ```
 if using conda you can create an env using the .yml file in this repo:
 ```
-> conda create -f df-git.yml
-> (source) activate df-git   # depending on linux/windows
+~/dialogflow-git> conda create -f df-git.yml
+~/dialogflow-git> activate df-git   # on windows
+~/dialogflow-git> source activate df-git # on unix
 ```
 
 Check the list of agents currently being tracked using:
 ```
-> dfgit.py list_agents
+~/dialogflow-git> dfgit.py list_agents
 ```
 Create a nonempty github/bitbucket repo for each agent you wish to have version control for
-that isn't currently being tracked.
-Changes will be tracked in these repos.
+that isn't currently being tracked.\
+Changes will be tracked in these repos.\
 For example create first an empty repo on bitbucket and then locally:
 ```
 mkdir some_agent
@@ -58,37 +59,37 @@ git push -u origin master
 
 Clone each of these as a submodule in current repo using:
 ```
-> dfgit.py init <URL_to_repo> <agent_name>
+~/dialogflow-git> dfgit.py init <URL_to_repo> <agent_name>
 ```
-You will be prompted for the agent's developer token only once.
+You will be prompted for the agent's developer token only once.\
 This can be found in the settings section of your agent dashboard on dialogflow
 
 ### Usage:
 For more details about how to run a command use --help:
 ```
-> dfgit.py init --help
+~/dialogflow-git> dfgit.py init --help
 ```
 Save state of all Intents & Entities and commit
 ```
-> dfgit.py save_state --commit <agent_name>
+~/dialogflow-git> dfgit.py save_state --commit <agent_name>
 ```
 You can commit and push by giving just the --push flag
 ```
-> dfgit.py save_state --push <agent_name>
+~/dialogflow-git> dfgit.py save_state --push <agent_name>
 ```
 you will be prompted for a commit message in both cases
 
 Alternatively use --delta option to supply a commit message:
 ```
-> dfgit.py save_state --push --delta "4th commit" <agent_name>
+~/dialogflow-git> dfgit.py save_state --push --delta "4th commit" <agent_name>
 ```
 Load a saved state from a specific commit hash
 ```
-> dfgit.py load_state --commit-hash 11edc81f6d2a1e9ede198b75a90d021124c5207b <agent_name>
+~/dialogflow-git> dfgit.py load_state --commit-hash 11edc81f6d2a1e9ede198b75a90d021124c5207b <agent_name>
 ```
 Or you can pick from a list of up to the last 10 commits to load a state
 ```
-> dfgit.py load_state <agent_name>
+~/dialogflow-git> dfgit.py load_state <agent_name>
 (0)  2ee277719bff7d92ae4e27efd5ca2cb069e33fe3  # Intents: 3, # Entities: 1
 (1)  fedb991cd6667e73c662ad74b03773955e189f9b  # Intents: 3, # Entities: 1
 (2)  11edc81f6d2a1e9ede198b75a90d021124c5207b  test
@@ -98,11 +99,11 @@ Press number corresponding to which commit you'd like to load the state from:
 
 Overwrite one bot with another .e.g. production bot with dev bot
 ```
-> dfgit overwrite <prod_bot> <dev_bot>
+~/dialogflow-git> dfgit.py overwrite <prod_bot> <dev_bot>
 ```
 This will save and push the current state of both bots
 and overwrite the <prod_bot> with the most recent version of the <dev_bot>
 
 rm_agent removes a submodule from your local repo. Use with caution:
 ````
-dfgit.py rm_agent <agent_name>
+~/dialogflow-git> dfgit.py rm_agent <agent_name>
