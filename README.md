@@ -1,6 +1,6 @@
 # dialogflow-ai-git
 ### Reason for creation:
-This is a CLI tool to version control intents and entities in dialogflow.ai borne out of a frustration of having them constantly mangled by other team members without a way to rollback to a working version.
+This is a CLI tool to version control intents and entities in dialogflow.com borne out of a frustration of having them constantly mangled by other team members without a way to rollback to a working version.
 
 ### List of supported actions:
 * List agents being tracked in repos currently

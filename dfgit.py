@@ -11,10 +11,6 @@ from time import gmtime, strftime
 import shutil
 DF_HEADERS = None
 BASE_URL = 'https://api.dialogflow.com/v1/'
-# DEV_KEY = '605918452fca446e8518703aa4750c0e'
-# DEV_TOKEN_ENV_NAME = 'DF_DEV_TOKEN'
-# DF_HISTORY_DIR = 'df_history'
-# DF_REPO = os.path.join(os.getcwd(), DF_HISTORY_DIR)
 DF_REPO = None
 AGENT_DIR = None
 DEV_KEY = None
@@ -27,6 +23,7 @@ def cli():
 # @cli.command()
 # @click.argument('repo_name')
 # @click.argument('dev_token')
+# TODO (RH)
 def create_new(repo_name, dev_token):
     """
     Creates new git repository for storing an agent's entities and intents.
@@ -34,6 +31,7 @@ def create_new(repo_name, dev_token):
     :return: 
     """
     pass
+
 @cli.command()
 @click.argument('repo_url')
 @click.argument('agent_name') #formerly DF_HISTORY_DIR
@@ -41,15 +39,6 @@ def init(repo_url, agent_name):
     """
     Clones submodule (separate repo) to keep track of dialogflow.com history separately. This is required before use.
     """
-    # TODO(jhurt): Handle private repos by using user's Github credentials
-    # try:
-    #     if requests.get(repo_url).status_code != 200:
-    #         print('Cannot reach this URL. Terminating.')
-    #         return
-    # except Exception:
-    #     # Likely a malformed URL, but requests can throw any number of different URL related Exceptions, so catch all
-    #     print('Likely a malformed URL. Terminating.')
-    #     return
     if not repo_url:
         print("no repo url supplied.\n"
               "Usage: dfgit.py init <existing git repo url to store DF agent intents and entities> <agent_name>")
@@ -163,8 +152,6 @@ def load_state_internal(agent_name, commit_hash=None):
 
     print('Loading entire state! Please be patient.')
     intents, entities = None, None
-    # TODO(jhurt): make this only iterate through the dialogflow.com specific pickle files.
-    # Maybe put them in their own directory and limit the "tree" path to blobs in that path?
     for b in target_commit.tree.blobs:
         if b.name == "intents.json":
             intents = json.loads(b.data_stream.read().decode('utf-8'))
