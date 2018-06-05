@@ -15,7 +15,7 @@ Clone this repo using:
 > git clone --recursive https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/dialogflow-git.git
 ```
 The --recursive flag is required to also copy the existing submodules\
-They will be cloned but the HEAD of each submodule will be detached.\
+They will be cloned but the HEAD of each submodule may be detached.\
 To reattach navigate to the repo in question and use:
 
 ```
