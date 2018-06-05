@@ -44,26 +44,22 @@ Check the list of agents currently being tracked using:
 ```
 ~/dialogflow-git> dfgit.py list_agents
 ```
-Create a nonempty github/bitbucket repo for each agent you wish to have version control for
+Create a github/bitbucket repo for each agent you wish to have version control for
 that isn't currently being tracked.\
 Changes will be tracked in these repos.\
-For example create first an empty repo on bitbucket and then locally:
-```
-mkdir some_agent
-touch README.md
-git init
-git add *
-git commit -m "Initial Commit"
-git remote add origin <repo_url>
-git push -u origin master
-```
-
 Clone each of these as a submodule in current repo using:
 ```
 ~/dialogflow-git> dfgit.py init <URL_to_repo> <agent_name>
 ```
 You will be prompted for the agent's developer token only once.\
 This can be found in the settings section of your agent dashboard on dialogflow
+(On bitbucket adding an empty repo as a submodule will fail initially)
+save the state once for an intial commit
+and then reinitialise so the submodule is added correctly 
+```
+~/dialogflow-git> dfgit.py save_state --push --delta "inital commit" <agent_name>
+~/dialogflow-git> dfgit.py init <URL_to_repo> <agent_name>
+```
 
 ### Usage:
 For more details about how to run a command use --help:
