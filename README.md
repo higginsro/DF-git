@@ -53,6 +53,7 @@ mkdir some_agent
 touch README.md
 git init
 git add *
+git commit -m "Initial Commit"
 git remote add origin <repo_url>
 git push -u origin master
 ```
