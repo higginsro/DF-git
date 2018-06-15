@@ -5,6 +5,7 @@ import os
 import requests
 import click
 from git import Repo
+import git
 import json
 import configparser
 from time import gmtime, strftime
@@ -106,6 +107,10 @@ def save_state_internal(push, commit, agent_name, delta=None):
         json.dump(intents, f, ensure_ascii=False, indent=4, sort_keys=True)
         json.dump(entities, f2, ensure_ascii=False, indent=4, sort_keys=True)
     os.chdir(AGENT_DIR)
+    # check branch is master, not checked out, up to date and working tree clean
+    # if not repo_status_ok():
+    #     print("check repo has checked out master and is neither ahead nor behind master in commits")
+    #     exit(1)
     os.system('git add {} {}'.format('intents.json', 'entities.json'))
     print("in {}".format(os.getcwd()))
     if not delta and push:
@@ -118,6 +123,9 @@ def save_state_internal(push, commit, agent_name, delta=None):
     if push:
         os.system('git push')
     os.chdir('..')
+
+# def repo_status_ok():
+#     git.Repo.active_branch()
 
 def load_state_internal(agent_name, commit_hash=None):
     """
@@ -258,7 +266,7 @@ def get_resource_dict(resource):
     resource_json = requests.get(BASE_URL + resource, headers=DF_HEADERS).json()
     resources = {}
     for d in resource_json:
-        resources[d['id']] = requests.get(BASE_URL + resource +'/' + d['id'], headers=DF_HEADERS).json()
+        resources[d['name']] = requests.get(BASE_URL + resource +'/' + d['id'], headers=DF_HEADERS).json()
     return resources
 
 def environment_valid(agent_name):
@@ -309,6 +317,30 @@ def get_latest_commit_hash(target_dir=None):
     if target_dir:
         os.chdir('..')
     return latest_commit_hash
+
+def child2parent(intents):
+    c2p = {}
+    for key in intents:
+        if 'parentId' in intents[key]:
+            c2p[intents[key]['name']] = intents[intents[key]['parentId']]
+
+    return c2p
+
+def c2p(intents):
+    ctop = {}
+    for k,v in intents.items():
+        if 'parentId' in v:
+            vname = v['name']
+            poss_parname = vname[:vname.rfind('-')].strip()
+            for intent in intents.values():
+                if intent['name']==poss_parname:
+                    ctop[vname] = poss_parname
+    return ctop
+
+def fix_followups(agent_name):
+    environment_valid(agent_name)
+    intents = get_resource_dict('intents')
+
 
 if __name__ == '__main__':
     cli()
