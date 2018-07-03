@@ -266,6 +266,8 @@ def get_resource_dict(resource):
     resource_json = requests.get(BASE_URL + resource, headers=DF_HEADERS).json()
     resources = {}
     for d in resource_json:
+        # print("d is {}".format(d))
+        # print("d['name'] is {}".format(d['name']))
         resources[d['name']] = requests.get(BASE_URL + resource +'/' + d['id'], headers=DF_HEADERS).json()
     return resources
 
