@@ -20,3 +20,6 @@
 [submodule "travel_swedish"]
 	path = travel_swedish
 	url = https://rhiggins@rndwww.nce.amadeus.net/git/scm/~rhiggins/travel_swedish.git
+[submodule "etrav_test"]
+	path = etrav_test
+	url = https://ni2kumar@rndwww.nce.amadeus.net/git/scm/dfgetrav/df-etrav-test.git

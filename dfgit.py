@@ -15,6 +15,7 @@ BASE_URL = 'https://api.dialogflow.com/v1/'
 DF_REPO = None
 AGENT_DIR = None
 DEV_KEY = None
+import sys
 
 
 @click.group()
@@ -69,7 +70,10 @@ def rm_agent(agent_name):
     """
     conf = configparser.ConfigParser()
     conf.read("agents.ini")
+    print(conf)
+    print('attempting deletion of {}'.format(agent_name))
     if agent_name in conf:
+        print('found agents in agents.ini file')
         del conf[agent_name]
         with open("agents.ini", "w") as f:
             conf.write(f)
@@ -263,11 +267,19 @@ def get_resource_dict(resource):
     :param resource: either 'intents' or 'entities' as of right now
     :return: dict in form { 'id' : resource_dict }
     """
-    resource_json = requests.get(BASE_URL + resource, headers=DF_HEADERS).json()
+    request_attempt = requests.get(BASE_URL + resource, headers=DF_HEADERS)
+    if request_attempt.status_code !=200:
+        print("Bad Request (status code:{}) to DF, using params:".format(request_attempt.status_code))
+        print("BASE_URL {}".format(BASE_URL + resource))
+        print("DF_HEADERS {}".format(DF_HEADERS))
+        sys.exit(0)
+    resource_json = request_attempt.json()
+    with open('etrav_debug.json','w') as ff:
+        json.dump(resource_json,ff, ensure_ascii=False, indent=4, sort_keys=True)
     resources = {}
     for d in resource_json:
-        # print("d is {}".format(d))
-        # print("d['name'] is {}".format(d['name']))
+        print("d is {}".format(d))
+        print("d['name'] is {}".format(d['name']))
         resources[d['name']] = requests.get(BASE_URL + resource +'/' + d['id'], headers=DF_HEADERS).json()
     return resources
 
