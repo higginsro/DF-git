@@ -1,0 +1,44 @@
+[
+    {
+        "count": 6,
+        "id": "1820fd71-4ee4-4469-8dab-5965c1fc3a32",
+        "name": "etrav-schedule",
+        "preview": "schedule <= (schedule, time, ...), ..."
+    },
+    {
+        "count": 6,
+        "id": "1c308289-92a7-45fc-8cde-55b29aea832d",
+        "name": "etrav-baby-type",
+        "preview": "baby <= (baby, infant, ...)"
+    },
+    {
+        "count": 22,
+        "id": "24b9aa18-ade2-406e-83d1-63adc88365ad",
+        "name": "travelDocType",
+        "preview": "itinerary <= (itinerary, plan, ...), ..."
+    },
+    {
+        "count": 8,
+        "id": "62081b4f-0c54-45db-9736-965bbcf0ca7f",
+        "name": "etrav-baggage-types",
+        "preview": "baggage <= (baggage, luggage, ...)"
+    },
+    {
+        "count": 4,
+        "id": "908cdc62-afe7-4221-9afd-f0efef35c691",
+        "name": "etrav-refund",
+        "preview": "refund <= (refund, reimburse, ...)"
+    },
+    {
+        "count": 10,
+        "id": "cce0e2ea-52ce-4a4e-a87c-0aab623513e2",
+        "name": "etrav-pet",
+        "preview": "pet <= (pet, cat, ...)"
+    },
+    {
+        "count": 27,
+        "id": "de831c5d-ee8a-4511-bafc-bbe1a5465336",
+        "name": "etrav-vehicle-type",
+        "preview": "rental car <= (rental car, pickup truck, ...)"
+    }
+]
