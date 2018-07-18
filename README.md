@@ -80,6 +80,12 @@ Alternatively use --delta option to supply a commit message:
 ```
 ~/dialogflow-git> dfgit.py save_state --push --delta "4th commit" <agent_name>
 ```
+If commiting fails, you can simply save the agent locally, by supplying no flags:
+```
+~/dialogflow-git> dfgit.py save_state <agent_name>
+
+```
+
 Load a saved state from a specific commit hash
 ```
 ~/dialogflow-git> dfgit.py load_state --commit-hash 11edc81f6d2a1e9ede198b75a90d021124c5207b <agent_name>
