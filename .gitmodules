@@ -23,3 +23,6 @@
 [submodule "etrav_test"]
 	path = etrav_test
 	url = https://ni2kumar@rndwww.nce.amadeus.net/git/scm/dfgetrav/df-etrav-test.git
+[submodule "1x_Etraveli_Test_Agent"]
+	path = 1x_Etraveli_Test_Agent
+	url = https://ni2kumar@rndwww.nce.amadeus.net/git/scm/dfgetrav/df-etrav-test.git
