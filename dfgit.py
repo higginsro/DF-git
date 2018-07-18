@@ -308,7 +308,7 @@ def get_resource_dict(resource):
     #     json.dump(resource_json,ff, ensure_ascii=False, indent=4, sort_keys=True)
     resources = {}
     for d in resource_json:
-        print("fetching '{}'".format(d))
+        print("fetching '{}'".format(d['name']))
         # print("d['name'] is {}".format(d['name']))
         resources[d['name']] = requests.get(BASE_URL + resource +'/' + d['id'], headers=DF_HEADERS).json()
     return resources
