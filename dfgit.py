@@ -10,6 +10,8 @@ import json
 import configparser
 from time import gmtime, strftime
 import shutil
+import logging
+from glob import glob
 DF_HEADERS = None
 BASE_URL = 'https://api.dialogflow.com/v1/'
 DF_REPO = None
@@ -22,6 +24,10 @@ import sys
 def cli():
     pass
 
+def to_system(command):
+    print(command)
+    os.system(command)
+
 # @cli.command()
 # @click.argument('repo_name')
 # @click.argument('dev_token')
@@ -33,6 +39,22 @@ def create_new(repo_name, dev_token):
     :return: 
     """
     pass
+
+def init_agents():
+    '''reattaches head of submodules for each agent already configured'''
+    parent_dir = os.getcwd()
+    if not os.path.exists('agents.ini'):
+        logging.warning("no agents.ini file: no knowledge of agents being tracked")
+    else:
+        conf = configparser.ConfigParser()
+        conf.read('agents.ini')
+        for agent in conf:
+            if os.path.isdir(agent):
+                os.chdir(agent)
+                print("in ./{}".format(agent))
+                to_system("git checkout master")
+
+                os.chdir(parent_dir)
 
 @cli.command()
 @click.argument('repo_url')
@@ -64,6 +86,9 @@ def init(repo_url, agent_name):
 @cli.command()
 @click.argument('agent_name')
 def rm_agent(agent_name):
+    return  rmAgentImpl(agent_name=agent_name)
+
+def rmAgentImpl(agent_name):
     """
     !DANGER! deletes submodule of an agent from this repo.
     :return:
@@ -78,9 +103,10 @@ def rm_agent(agent_name):
         with open("agents.ini", "w") as f:
             conf.write(f)
         print("removing {} from agents.ini".format(agent_name))
-    if agent_name in find_submodules():
+    path = os.path.join(".git", "modules", agent_name)
+    print(path)
+    if agent_name in find_submodules() or os.path.exists(path):
         os.system('git rm {}'.format(agent_name))
-        path = os.path.join(".git", "modules", agent_name)
         shutil.rmtree(path)
         print("deleted "+agent_name)
 
@@ -115,6 +141,10 @@ def save_state_internal(push, commit, agent_name, delta=None):
     # if not repo_status_ok():
     #     print("check repo has checked out master and is neither ahead nor behind master in commits")
     #     exit(1)
+    if not delta and not push and not delta:
+        print("no flags supplied: only saving locally, not commiting or pushing to remote.")
+        os.chdir('..')
+        return
     os.system('git add {} {}'.format('intents.json', 'entities.json'))
     print("in {}".format(os.getcwd()))
     if not delta and push:
@@ -274,12 +304,12 @@ def get_resource_dict(resource):
         print("DF_HEADERS {}".format(DF_HEADERS))
         sys.exit(0)
     resource_json = request_attempt.json()
-    with open('etrav_debug.json','w') as ff:
-        json.dump(resource_json,ff, ensure_ascii=False, indent=4, sort_keys=True)
+    # with open('etrav_debug.json','w') as ff:
+    #     json.dump(resource_json,ff, ensure_ascii=False, indent=4, sort_keys=True)
     resources = {}
     for d in resource_json:
-        print("d is {}".format(d))
-        print("d['name'] is {}".format(d['name']))
+        print("fetching '{}'".format(d))
+        # print("d['name'] is {}".format(d['name']))
         resources[d['name']] = requests.get(BASE_URL + resource +'/' + d['id'], headers=DF_HEADERS).json()
     return resources
 
