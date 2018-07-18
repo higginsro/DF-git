@@ -39,7 +39,7 @@ def create_new(repo_name, dev_token):
     :return: 
     """
     pass
-
+@cli.command()
 def init_agents():
     '''reattaches head of submodules for each agent already configured'''
     parent_dir = os.getcwd()
